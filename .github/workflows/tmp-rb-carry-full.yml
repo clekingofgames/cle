@@ -1,0 +1,34 @@
+name: Temporary RB carry census
+on:
+  push:
+    branches:
+      - tmp/rb-carry-2023-2025-analysis
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install analysis dependencies
+        run: python -m pip install --upgrade pip pandas pyarrow numpy scipy requests
+      - name: Run full census
+        run: python tmp_rb_analysis/rb_carry_full_2023_2025.py
+      - name: Package outputs
+        if: always()
+        run: |
+          if [ -d rb_carry_2023_2025_full ]; then zip -r rb_carry_2023_2025_full.zip rb_carry_2023_2025_full; fi
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rb-carry-2023-2025-full
+          path: |
+            rb_carry_2023_2025_full
+            rb_carry_2023_2025_full.zip
+          if-no-files-found: warn
