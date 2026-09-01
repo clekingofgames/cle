@@ -26,7 +26,8 @@ jobs:
           fixes=[
             ("'books':json.dumps(d.book_id.value_counts().head(10).to_dict())", "'books':str({int(k):int(v) for k,v in d.book_id.value_counts().head(10).items()})"),
             ("p=p[~p.get('_drop_period',False).fillna(False)].copy()", "p=p[p['period'].eq('event')].copy()"),
-            ("c=canon.merge(st,left_on=['season','week','pid_str'],right_on=['season','week','stat_pid'],how='left')", "c=canon.merge(st,left_on=['season','week','pid_str'],right_on=['season','week','stat_pid'],how='left'); c['name_norm']=c['name_norm_x'] if 'name_norm_x' in c.columns else c['name_norm']")
+            ("c=canon.merge(st,left_on=['season','week','pid_str'],right_on=['season','week','stat_pid'],how='left')", "c=canon.merge(st,left_on=['season','week','pid_str'],right_on=['season','week','stat_pid'],how='left'); c['name_norm']=c['name_norm_x'] if 'name_norm_x' in c.columns else c['name_norm']"),
+            ("pos=y.position_group.fillna(y.position).astype(str).str.upper()\ny=y[pos.eq('RB')].copy()", "pos=y.position.astype(str).str.upper()\ny=y[pos.eq('RB')].copy()")
           ]
           for old,new in fixes:
               if old in s: s=s.replace(old,new)
