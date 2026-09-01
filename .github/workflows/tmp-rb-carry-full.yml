@@ -17,7 +17,7 @@ jobs:
           python-version: '3.11'
       - name: Install analysis dependencies
         run: python -m pip install --upgrade pip pandas pyarrow numpy scipy requests
-      - name: Apply audited source fixes
+      - name: Apply audited source compatibility fixes
         run: |
           python - <<'PY'
           from pathlib import Path
@@ -25,7 +25,8 @@ jobs:
           s=p.read_text()
           fixes=[
             ("'books':json.dumps(d.book_id.value_counts().head(10).to_dict())", "'books':str({int(k):int(v) for k,v in d.book_id.value_counts().head(10).items()})"),
-            ("p=p[~p.get('_drop_period',False).fillna(False)].copy()", "p=p[p['period'].eq('event')].copy()")
+            ("p=p[~p.get('_drop_period',False).fillna(False)].copy()", "p=p[p['period'].eq('event')].copy()"),
+            ("c=canon.merge(st,left_on=['season','week','pid_str'],right_on=['season','week','stat_pid'],how='left')", "c=canon.merge(st,left_on=['season','week','pid_str'],right_on=['season','week','stat_pid'],how='left'); c['name_norm']=c['name_norm_x'] if 'name_norm_x' in c.columns else c['name_norm']")
           ]
           for old,new in fixes:
               if old in s: s=s.replace(old,new)
